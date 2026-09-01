@@ -1,0 +1,35 @@
+<Window x:Class="KioskMeet.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:wv2="clr-namespace:Microsoft.Web.WebView2.Wpf;assembly=Microsoft.Web.WebView2.Wpf"
+        Title="4Camping - Meet Kiosk"
+        WindowStyle="None"
+        WindowState="Maximized"
+        ResizeMode="NoResize"
+        Topmost="True"
+        ShowInTaskbar="False"
+        Background="Black">
+    <Grid>
+        <wv2:WebView2 x:Name="MainWebView" />
+
+        <Border Background="#CC1B2432"
+                CornerRadius="10"
+                Padding="14,11"
+                HorizontalAlignment="Left"
+                VerticalAlignment="Bottom"
+                Margin="20"
+                BorderBrush="#2B3A4E"
+                BorderThickness="1">
+            <StackPanel>
+                <StackPanel Orientation="Horizontal" Margin="0,0,0,7">
+                    <Ellipse x:Name="CameraDot" Width="10" Height="10" Fill="Gray" Margin="0,0,9,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="CameraStatusText" Foreground="#E7ECF2" FontSize="12" FontFamily="Segoe UI" Text="Kamera: kontroluji…"/>
+                </StackPanel>
+                <StackPanel Orientation="Horizontal">
+                    <Ellipse x:Name="JabraDot" Width="10" Height="10" Fill="Gray" Margin="0,0,9,0" VerticalAlignment="Center"/>
+                    <TextBlock x:Name="JabraStatusText" Foreground="#E7ECF2" FontSize="12" FontFamily="Segoe UI" Text="Jabra 810: kontroluji…"/>
+                </StackPanel>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Window>

@@ -1,0 +1,896 @@
+<!doctype html>
+<html lang="cs">
+
+<head>
+    <title>4Camping - Meet Kiosk</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+
+    <style>
+        :root {
+            --card-bg: #1b2432;
+            --card-border: #2b3a4e;
+            --input-bg: #26364a;
+            --input-border: #3a4d63;
+            --text-light: #e7ecf2;
+            --text-muted: #8b98a8;
+            --accent-orange-1: #f5a623;
+            --accent-orange-2: #f07d1a;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        html, body {
+            height: 100%;
+        }
+
+        body {
+            font-family: "Segoe UI", Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(180deg, #1a3a5c 0%, #2f5c85 35%, #4c7fa3 55%, #35516b 65%, #16202b 100%);
+        }
+
+        /* ===== Animované pozadí ===== */
+
+        .sun {
+            position: absolute;
+            top: 13%;
+            left: 62%;
+            width: 180px;
+            height: 180px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(230, 230, 150, 0.9) 0%, rgba(230, 230, 150, 0.25) 55%, rgba(230, 230, 150, 0) 75%);
+            filter: blur(1px);
+            z-index: 0;
+            animation: sunPulse 7s ease-in-out infinite;
+        }
+
+        @keyframes sunPulse {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50%      { opacity: 0.82; transform: scale(1.06); }
+        }
+
+        .cloud {
+            position: absolute;
+            z-index: 0;
+            opacity: 0.8;
+        }
+
+        .cloud .blob {
+            position: absolute;
+            background: rgba(255, 255, 255, 0.75);
+            border-radius: 50%;
+        }
+
+        .cloud1 { top: 7%;  left: -20%; width: 220px; height: 90px; animation: drift 75s linear infinite; }
+        .cloud2 { top: 16%; left: -30%; width: 160px; height: 70px; animation: drift 100s linear infinite; animation-delay: -30s; }
+        .cloud3 { top: 3%;  left: -15%; width: 260px; height: 100px; animation: drift 130s linear infinite; animation-delay: -70s; }
+
+        @keyframes drift {
+            from { transform: translateX(0); }
+            to   { transform: translateX(145vw); }
+        }
+
+        .scene-trees {
+            position: absolute;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: 22%;
+            background-color: #05070a;
+            clip-path: polygon(
+                0% 100%, 0% 40%, 3% 55%, 6% 20%, 9% 50%, 12% 15%, 15% 48%, 18% 25%,
+                21% 55%, 24% 18%, 27% 50%, 30% 30%, 33% 12%, 36% 45%, 39% 22%, 42% 52%,
+                45% 28%, 48% 10%, 51% 46%, 54% 24%, 57% 55%, 60% 20%, 63% 48%, 66% 15%,
+                69% 42%, 72% 25%, 75% 52%, 78% 18%, 81% 46%, 84% 28%, 87% 12%, 90% 48%,
+                93% 22%, 96% 52%, 100% 30%, 100% 100%
+            );
+            z-index: 1;
+        }
+
+        /* ===== Rozvržení ===== */
+
+        .app-shell {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            height: 100%;
+            padding: 0 40px;
+        }
+
+        .center-col {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100%;
+        }
+
+        .container {
+            text-align: center;
+            background-color: rgba(27, 36, 50, 0.92);
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--card-border);
+            padding: 36px 32px 28px;
+            border-radius: 14px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.45);
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .logo {
+            font-size: 1.7rem;
+            font-weight: 800;
+            margin-bottom: 6px;
+            letter-spacing: 0.3px;
+        }
+        .logo span.n4 { color: #4aa8e0; }
+        .logo span.camp { color: #6fbf5e; }
+        .logo span.ing { color: #c9d84a; }
+
+        .subtitle {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            margin-bottom: 26px;
+        }
+
+        label {
+            display: block;
+            text-align: left;
+            font-weight: 500;
+            margin-bottom: 6px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        /* ===== Přepínání služby - fixní panel vlevo nahoře ===== */
+
+        .service-nav {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            z-index: 40;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            background: rgba(20, 27, 38, 0.85);
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--card-border);
+            border-radius: 12px;
+            padding: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+
+        .service-nav .nav-brand {
+            font-size: 0.72rem;
+            font-weight: 800;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            padding: 4px 10px 8px;
+            border-bottom: 1px solid var(--card-border);
+            margin-bottom: 4px;
+        }
+
+        .service-tab {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 9px 14px;
+            border-radius: 8px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: var(--text-muted);
+            font-size: 0.82rem;
+            font-weight: 600;
+            cursor: pointer;
+            text-align: left;
+            white-space: nowrap;
+            transition: border-color 0.15s ease-in-out, color 0.15s ease-in-out, background-color 0.15s ease-in-out;
+        }
+
+        .service-tab .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--tab-color, var(--accent-orange-1));
+            flex-shrink: 0;
+            opacity: 0.4;
+        }
+
+        .service-tab:hover {
+            color: var(--text-light);
+            background: rgba(255, 255, 255, 0.04);
+        }
+
+        .service-tab.active {
+            color: var(--text-light);
+            background: var(--tab-color-fade, rgba(245, 166, 35, 0.15));
+            border-color: var(--tab-color, var(--accent-orange-1));
+        }
+
+        .service-tab.active .dot {
+            opacity: 1;
+            box-shadow: 0 0 6px var(--tab-color, var(--accent-orange-1));
+        }
+
+        /* ===== Hero hlavička "vlastní stránky" dané služby ===== */
+
+        .page-hero {
+            margin: -36px -32px 24px;
+            padding: 28px 32px 20px;
+            border-radius: 14px 14px 0 0;
+            background: linear-gradient(135deg, var(--hero-color-1, #4aa8e0), var(--hero-color-2, #2d8cff));
+            text-align: left;
+        }
+
+        .page-hero .hero-icon {
+            font-size: 1.6rem;
+            margin-bottom: 6px;
+            display: block;
+        }
+
+        .page-hero .hero-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #0c1420;
+            margin-bottom: 2px;
+        }
+
+        .page-hero .hero-tagline {
+            font-size: 0.8rem;
+            color: rgba(12, 20, 32, 0.75);
+            font-weight: 600;
+        }
+
+        input {
+            padding: 12px 14px;
+            margin: 0 0 18px 0;
+            width: 100%;
+            background-color: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 8px;
+            font-size: 1rem;
+            color: var(--text-light);
+        }
+
+        input::placeholder {
+            color: #6b7688;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--accent-orange-1);
+            box-shadow: 0 0 0 3px rgba(245, 166, 35, 0.18);
+        }
+
+        button {
+            background: linear-gradient(90deg, var(--accent-orange-1) 0%, var(--accent-orange-2) 100%);
+            color: #1a1206;
+            padding: 13px 24px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            width: 100%;
+            font-size: 1rem;
+            font-weight: 700;
+            margin-top: 6px;
+            transition: filter 0.15s ease-in-out;
+        }
+
+        button:hover {
+            filter: brightness(1.08);
+        }
+
+        .status-msg {
+            margin-top: 16px;
+            font-size: 0.85rem;
+            color: var(--text-muted);
+            min-height: 1.2em;
+        }
+
+        .status-msg.active {
+            color: #6fbf5e;
+        }
+
+        .status-msg.ended {
+            color: var(--accent-orange-1);
+        }
+
+        /* ===== Poslední schůzky ===== */
+
+        .recent {
+            margin-top: 22px;
+            text-align: left;
+            display: none;
+        }
+
+        .recent h4 {
+            margin: 0 0 10px;
+            font-size: 0.78rem;
+            text-transform: uppercase;
+            letter-spacing: 0.6px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        .recent-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            max-height: 190px;
+            overflow-y: auto;
+        }
+
+        .recent-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+            background: var(--input-bg);
+            border: 1px solid var(--input-border);
+            border-radius: 7px;
+            padding: 9px 11px;
+            cursor: pointer;
+            font-size: 0.85rem;
+            color: var(--text-light);
+            text-align: left;
+            width: 100%;
+            transition: border-color 0.15s ease-in-out, transform 0.1s ease-in-out;
+        }
+
+        .recent-item:hover {
+            border-color: var(--accent-orange-1);
+            transform: translateY(-1px);
+        }
+
+        .recent-item .left {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            min-width: 0;
+        }
+
+        .recent-item .badge {
+            flex-shrink: 0;
+            font-size: 0.62rem;
+            font-weight: 800;
+            padding: 3px 6px;
+            border-radius: 4px;
+            color: #0c0f14;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .recent-item .code {
+            font-family: "Consolas", monospace;
+            font-weight: 600;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .recent-item .time {
+            color: var(--text-muted);
+            font-size: 0.72rem;
+            white-space: nowrap;
+        }
+
+        /* ===== Boční panel s návodem ===== */
+
+        .help-panel {
+            width: 300px;
+            flex-shrink: 0;
+            background-color: rgba(20, 27, 38, 0.85);
+            backdrop-filter: blur(6px);
+            border: 1px solid var(--card-border);
+            border-radius: 14px;
+            padding: 26px 24px;
+            color: var(--text-light);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.35);
+            align-self: center;
+            max-height: 82vh;
+            overflow-y: auto;
+        }
+
+        .help-panel h3 {
+            margin: 0 0 4px;
+            font-size: 1.05rem;
+            color: #fff;
+        }
+
+        .help-panel .help-sub {
+            margin: 0 0 18px;
+            font-size: 0.78rem;
+            color: var(--text-muted);
+        }
+
+        .help-steps {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        .help-steps li {
+            display: flex;
+            gap: 12px;
+            align-items: flex-start;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            color: #d3dae3;
+        }
+
+        .help-steps .num {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: linear-gradient(90deg, var(--accent-orange-1), var(--accent-orange-2));
+            color: #1a1206;
+            font-weight: 700;
+            font-size: 0.8rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .help-note {
+            margin-top: 20px;
+            padding-top: 16px;
+            border-top: 1px solid var(--card-border);
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            line-height: 1.5;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="sun"></div>
+
+    <div class="cloud cloud1">
+        <div class="blob" style="width:80px;height:80px;left:0;top:10px;"></div>
+        <div class="blob" style="width:120px;height:120px;left:50px;top:-15px;"></div>
+        <div class="blob" style="width:70px;height:70px;left:140px;top:18px;"></div>
+    </div>
+    <div class="cloud cloud2">
+        <div class="blob" style="width:55px;height:55px;left:0;top:8px;"></div>
+        <div class="blob" style="width:85px;height:85px;left:35px;top:-8px;"></div>
+        <div class="blob" style="width:50px;height:50px;left:95px;top:12px;"></div>
+    </div>
+    <div class="cloud cloud3">
+        <div class="blob" style="width:95px;height:95px;left:0;top:14px;"></div>
+        <div class="blob" style="width:140px;height:140px;left:60px;top:-18px;"></div>
+        <div class="blob" style="width:80px;height:80px;left:170px;top:20px;"></div>
+    </div>
+
+    <div class="scene-trees"></div>
+
+    <div class="service-nav" id="serviceTabs">
+        <div class="nav-brand">4camping</div>
+        <button type="button" class="service-tab active" data-service="meet"><span class="dot"></span>Google Meet</button>
+        <button type="button" class="service-tab" data-service="teams"><span class="dot"></span>MS Teams</button>
+        <button type="button" class="service-tab" data-service="zoom"><span class="dot"></span>Zoom</button>
+    </div>
+
+    <div class="app-shell">
+        <div class="center-col">
+            <div class="container">
+                <div class="page-hero" id="pageHero">
+                    <span class="hero-icon" id="heroIcon">📹</span>
+                    <div class="hero-title" id="heroTitle">Google Meet</div>
+                    <div class="hero-tagline" id="heroTagline">Rychlé připojení kódem schůzky</div>
+                </div>
+
+                <form id="joinForm">
+                    <label id="inputLabel" for="verificationCode">Kód schůzky</label>
+                    <input type="text" id="verificationCode" name="verificationCode" required autofocus
+                        placeholder="např. abc-defg-hjk" autocomplete="off">
+
+                    <label id="passcodeLabel" for="passcodeInput" style="display:none;">Heslo (jen u ID)</label>
+                    <input type="text" id="passcodeInput" name="passcodeInput" style="display:none;"
+                        placeholder="nepovinné" autocomplete="off">
+
+                    <button type="submit">Připojit se</button>
+                </form>
+                <div id="statusMsg" class="status-msg"></div>
+
+                <div id="testWrap" style="display:none; margin-top:14px;">
+                    <button type="button" id="testBtn" style="background:transparent; border:1px solid var(--input-border); color:var(--text-muted); font-weight:500; padding:9px; border-radius:8px; width:100%; cursor:pointer; font-size:0.82rem;">
+                        🎥 Otestovat zvuk a obraz (zoom.us/test)
+                    </button>
+                </div>
+
+                <div id="recentWrap" class="recent">
+                    <h4>Poslední schůzky</h4>
+                    <div id="recentList" class="recent-list"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="help-panel">
+            <h3>Jak to funguje</h3>
+            <p class="help-sub">Návod pro připojení na schůzku přes tento kiosk</p>
+            <ol class="help-steps">
+                <li><span class="num">1</span><span>Nahoře zvolte službu – <strong>Google Meet</strong>, <strong>MS Teams</strong> nebo <strong>Zoom</strong>.</span></li>
+                <li><span class="num">2</span><span>U Meetu zadejte krátký kód. U Teams/Zoom stačí <strong>číslo schůzky</strong> (a volitelně heslo) – nebo rovnou <strong>vložte celý text pozvánky</strong> (klidně celý e-mail), appka si v něm sama najde ten správný odkaz.</span></li>
+                <li><span class="num">3</span><span>Klikněte na <strong>„Připojit se“</strong>. Pokud máte nainstalovanou appku Teams nebo Zoom, kiosk se ji pokusí otevřít automaticky; jinak schůzka poběží v prohlížeči.</span></li>
+                <li><span class="num">4</span><span>Po skončení schůzky se appka <strong>sama vrátí</strong> zpět sem – nemusíte nic zavírat ručně.</span></li>
+                <li><span class="num">5</span><span>Pokud se to nestane samo, klikněte na <strong>„✕ Ukončit a vrátit se“</strong> v okně schůzky.</span></li>
+                <li><span class="num">6</span><span>Naposledy použité schůzky najdete níže pod tlačítkem – stačí kliknout pro rychlé opětovné připojení.</span></li>
+                <li><span class="num">7</span><span>U Zoomu můžete kdykoliv kliknout na <strong>„Otestovat zvuk a obraz“</strong> – ověří kameru i Jabru bez nutnosti mít reálnou schůzku.</span></li>
+            </ol>
+            <div class="help-note">
+                Poslední schůzky se ukládají pouze lokálně v tomto zařízení.
+                V případě potíží kontaktujte IT oddělení 4Camping.
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var form = document.getElementById("joinForm");
+        var input = document.getElementById("verificationCode");
+        var inputLabel = document.getElementById("inputLabel");
+        var passcodeInput = document.getElementById("passcodeInput");
+        var passcodeLabel = document.getElementById("passcodeLabel");
+        var statusMsg = document.getElementById("statusMsg");
+        var recentWrap = document.getElementById("recentWrap");
+        var recentList = document.getElementById("recentList");
+        var serviceTabs = document.getElementById("serviceTabs");
+        var testWrap = document.getElementById("testWrap");
+        var testBtn = document.getElementById("testBtn");
+        var pageHero = document.getElementById("pageHero");
+        var heroIcon = document.getElementById("heroIcon");
+        var heroTitle = document.getElementById("heroTitle");
+        var heroTagline = document.getElementById("heroTagline");
+
+        var RECENT_KEY = "kioskmeet_recent_v3";
+        var RECENT_MAX = 10;
+
+        var SERVICES = {
+            meet: {
+                label: "Google Meet",
+                fieldLabel: "Kód schůzky",
+                placeholder: "např. abc-defg-hjk",
+                hasPasscode: false,
+                hasTest: false,
+                color: "#6fbf5e",
+                colorFade: "rgba(111, 191, 94, 0.2)",
+                heroIcon: "📹",
+                heroTitle: "Google Meet",
+                heroTagline: "Rychlé připojení kódem schůzky",
+                heroColor1: "#8fd67e",
+                heroColor2: "#4f9e3f"
+            },
+            teams: {
+                label: "MS Teams",
+                fieldLabel: "Číslo schůzky Teams (nebo celý odkaz)",
+                placeholder: "např. 234 567 890 12",
+                hasPasscode: true,
+                hasTest: false,
+                color: "#8b8cc7",
+                colorFade: "rgba(139, 140, 199, 0.25)",
+                heroIcon: "🟪",
+                heroTitle: "Microsoft Teams",
+                heroTagline: "Číslo schůzky, heslo, nebo celý odkaz",
+                heroColor1: "#a6a8dd",
+                heroColor2: "#5b5fc7"
+            },
+            zoom: {
+                label: "Zoom",
+                fieldLabel: "Číslo schůzky Zoom (nebo celý odkaz)",
+                placeholder: "např. 123 456 789",
+                hasPasscode: true,
+                hasTest: true,
+                color: "#4aa8e0",
+                colorFade: "rgba(74, 168, 224, 0.22)",
+                heroIcon: "🎦",
+                heroTitle: "Zoom",
+                heroTagline: "Číslo schůzky, heslo, nebo celý odkaz",
+                heroColor1: "#7ec3f2",
+                heroColor2: "#2d8cff"
+            }
+        };
+
+        var selectedService = "meet";
+
+        function hasHost() {
+            return window.chrome && window.chrome.webview;
+        }
+
+        // ===== Přepínání záložek služby ("vlastní stránka" pro každou) =====
+
+        function setService(service, clearFields) {
+            if (!SERVICES[service]) return;
+            if (clearFields === undefined) clearFields = true;
+            selectedService = service;
+
+            var cfg = SERVICES[service];
+            inputLabel.textContent = cfg.fieldLabel;
+            input.placeholder = cfg.placeholder;
+            statusMsg.textContent = "";
+            statusMsg.className = "status-msg";
+
+            heroIcon.textContent = cfg.heroIcon;
+            heroTitle.textContent = cfg.heroTitle;
+            heroTagline.textContent = cfg.heroTagline;
+            pageHero.style.setProperty("--hero-color-1", cfg.heroColor1);
+            pageHero.style.setProperty("--hero-color-2", cfg.heroColor2);
+
+            passcodeInput.style.display = cfg.hasPasscode ? "block" : "none";
+            passcodeLabel.style.display = cfg.hasPasscode ? "block" : "none";
+            testWrap.style.display = cfg.hasTest ? "block" : "none";
+
+            if (clearFields) {
+                input.value = "";
+                passcodeInput.value = "";
+            }
+
+            var buttons = serviceTabs.querySelectorAll(".service-tab");
+            buttons.forEach(function (btn) {
+                var isActive = btn.getAttribute("data-service") === service;
+                btn.classList.toggle("active", isActive);
+                btn.style.setProperty("--tab-color", cfg.color);
+                btn.style.setProperty("--tab-color-fade", cfg.colorFade);
+            });
+
+            input.focus();
+        }
+
+        serviceTabs.querySelectorAll(".service-tab").forEach(function (btn) {
+            btn.addEventListener("click", function () {
+                setService(btn.getAttribute("data-service"));
+            });
+        });
+
+        // ===== Chytré vložení celé pozvánky =====
+        // Uživatel může vložit klidně celý text e-mailové pozvánky (Ctrl+A,
+        // Ctrl+C z Outlooku/Gmailu) - appka si sama najde ten správný odkaz
+        // a přepne na odpovídající záložku.
+
+        var SMART_PATTERNS = [
+            { service: "teams", regex: /https:\/\/teams\.microsoft\.com\/l\/meetup-join\/[^\s"'<>]+/i },
+            { service: "zoom", regex: /https?:\/\/(?:[\w-]+\.)?zoom\.us\/j\/\d+(?:\?[^\s"'<>]*)?/i },
+            { service: "meet", regex: /https:\/\/meet\.google\.com\/[a-z-]+/i }
+        ];
+
+        function trySmartPaste(text) {
+            for (var i = 0; i < SMART_PATTERNS.length; i++) {
+                var match = text.match(SMART_PATTERNS[i].regex);
+                if (match) {
+                    return { service: SMART_PATTERNS[i].service, value: match[0] };
+                }
+            }
+            return null;
+        }
+
+        input.addEventListener("paste", function () {
+            setTimeout(function () {
+                var found = trySmartPaste(input.value);
+                if (found && found.service !== selectedService) {
+                    setService(found.service, false);
+                    input.value = found.value;
+                } else if (found) {
+                    input.value = found.value;
+                }
+            }, 0);
+        });
+
+        // ===== Sestavení požadavku na připojení podle zvolené služby =====
+        // Vrací { url, autofillId, autofillPasscode } nebo null při neplatném vstupu.
+
+        function buildJoinRequest(service, rawValue, rawPasscode) {
+            var val = (rawValue || "").trim();
+            var passcode = (rawPasscode || "").trim();
+            if (!val) return null;
+
+            if (service === "meet") {
+                var code = val.toLowerCase().replace(/\s+/g, "");
+                if (!code) return null;
+                return { url: "https://meet.google.com/" + encodeURIComponent(code) };
+            }
+
+            if (service === "teams") {
+                // Celý odkaz z pozvánky - použije se přímo
+                if (/^https?:\/\//i.test(val)) {
+                    return { url: val };
+                }
+                // Jen číslo schůzky -> appka otevře oficiální stránku
+                // Microsoftu "Join a meeting" a pokusí se ID/heslo vyplnit
+                // za uživatele (viz MeetWindow.xaml.cs)
+                var teamsId = val.replace(/\s+/g, "");
+                if (!/^\d{9,13}$/.test(teamsId)) return null;
+                return {
+                    url: "https://www.microsoft.com/en-us/microsoft-teams/join-a-meeting",
+                    autofillId: teamsId,
+                    autofillPasscode: passcode
+                };
+            }
+
+            if (service === "zoom") {
+                if (/^https?:\/\//i.test(val)) {
+                    return { url: val };
+                }
+                var zoomId = val.replace(/\s+/g, "");
+                if (!/^\d{8,12}$/.test(zoomId)) return null;
+                var zoomUrl = "https://zoom.us/j/" + zoomId;
+                if (passcode) {
+                    zoomUrl += "?pwd=" + encodeURIComponent(passcode);
+                }
+                return { url: zoomUrl };
+            }
+
+            return null;
+        }
+
+        // ===== Poslední schůzky =====
+
+        function loadRecent() {
+            try {
+                var raw = localStorage.getItem(RECENT_KEY);
+                return raw ? JSON.parse(raw) : [];
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveRecent(list) {
+            try {
+                localStorage.setItem(RECENT_KEY, JSON.stringify(list));
+            } catch (e) {
+                // localStorage nedostupné - poslední schůzky se prostě nezapamatují
+            }
+        }
+
+        function addRecent(service, value, passcode) {
+            var list = loadRecent().filter(function (item) {
+                return !(item.service === service && item.value === value);
+            });
+            list.unshift({
+                service: service,
+                value: value,
+                passcode: passcode || "",
+                time: Date.now()
+            });
+            list = list.slice(0, RECENT_MAX);
+            saveRecent(list);
+            renderRecent();
+        }
+
+        function formatTime(ts) {
+            var d = new Date(ts);
+            var datePart = d.toLocaleDateString("cs-CZ", { day: "2-digit", month: "2-digit" });
+            var timePart = d.toLocaleTimeString("cs-CZ", { hour: "2-digit", minute: "2-digit" });
+            return datePart + " " + timePart;
+        }
+
+        function renderRecent() {
+            var list = loadRecent();
+            if (!list.length) {
+                recentWrap.style.display = "none";
+                return;
+            }
+            recentWrap.style.display = "block";
+            recentList.innerHTML = "";
+
+            list.forEach(function (item) {
+                var cfg = SERVICES[item.service] || SERVICES.meet;
+
+                var btn = document.createElement("button");
+                btn.type = "button";
+                btn.className = "recent-item";
+
+                var left = document.createElement("span");
+                left.className = "left";
+
+                var badge = document.createElement("span");
+                badge.className = "badge";
+                badge.textContent = cfg.label;
+                badge.style.backgroundColor = cfg.color;
+
+                var codeSpan = document.createElement("span");
+                codeSpan.className = "code";
+                codeSpan.textContent = item.value;
+
+                left.appendChild(badge);
+                left.appendChild(codeSpan);
+
+                var timeSpan = document.createElement("span");
+                timeSpan.className = "time";
+                timeSpan.textContent = formatTime(item.time);
+
+                btn.appendChild(left);
+                btn.appendChild(timeSpan);
+
+                btn.addEventListener("click", function () {
+                    setService(item.service, false);
+                    input.value = item.value;
+                    passcodeInput.value = item.passcode || "";
+                    doJoin(item.service, item.value, item.passcode);
+                });
+
+                recentList.appendChild(btn);
+            });
+        }
+
+        // ===== Připojení ke schůzce =====
+
+        function doJoin(service, rawValue, rawPasscode) {
+            var request = buildJoinRequest(service, rawValue, rawPasscode);
+
+            if (!request) {
+                statusMsg.textContent = "Zadejte platné číslo schůzky nebo odkaz pro zvolenou službu.";
+                statusMsg.className = "status-msg ended";
+                return;
+            }
+
+            addRecent(service, (rawValue || "").trim(), rawPasscode);
+
+            if (hasHost()) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: "join",
+                    service: service,
+                    url: request.url,
+                    autofillId: request.autofillId || "",
+                    autofillPasscode: request.autofillPasscode || ""
+                }));
+                statusMsg.textContent = "Otevírám schůzku…";
+                statusMsg.className = "status-msg active";
+            } else {
+                // Fallback pro testování v běžném prohlížeči mimo appku
+                window.open(request.url, "_blank");
+            }
+        }
+
+        form.addEventListener("submit", function (e) {
+            e.preventDefault();
+            doJoin(selectedService, input.value, passcodeInput.value);
+        });
+
+        // Testovací Zoom schůzka (oficiální zoom.us/test) - ověří kameru,
+        // mikrofon i reproduktor bez nutnosti mít reálnou schůzku.
+        testBtn.addEventListener("click", function () {
+            statusMsg.textContent = "Otevírám testovací Zoom schůzku…";
+            statusMsg.className = "status-msg active";
+
+            if (hasHost()) {
+                window.chrome.webview.postMessage(JSON.stringify({
+                    type: "join",
+                    service: "zoom",
+                    url: "https://zoom.us/test"
+                }));
+            } else {
+                window.open("https://zoom.us/test", "_blank");
+            }
+        });
+
+        // Zprávy od hostitelské appky (KioskMeet.exe)
+        if (hasHost()) {
+            window.chrome.webview.addEventListener("message", function (event) {
+                if (event.data === "ended") {
+                    statusMsg.textContent = "Schůzka byla ukončena. Zadejte nový kód.";
+                    statusMsg.className = "status-msg ended";
+                    input.value = "";
+                    passcodeInput.value = "";
+                    input.focus();
+                }
+            });
+        }
+
+        setService("meet");
+        renderRecent();
+    </script>
+</body>
+
+</html>

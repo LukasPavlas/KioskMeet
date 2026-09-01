@@ -1,0 +1,57 @@
+<Window x:Class="KioskMeet.ControlBarWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        Title="Ovládání kiosku"
+        WindowStyle="None"
+        AllowsTransparency="True"
+        Background="Transparent"
+        Topmost="True"
+        ShowInTaskbar="False"
+        ResizeMode="NoResize"
+        SizeToContent="WidthAndHeight"
+        WindowStartupLocation="Manual">
+    <Border Background="#E61b2432"
+            CornerRadius="10"
+            Padding="8"
+            BorderBrush="#2B3A4E"
+            BorderThickness="1">
+        <StackPanel Orientation="Horizontal">
+
+            <Button x:Name="HomeButton"
+                    Content="🏠 Domů"
+                    Padding="12,8"
+                    Margin="0,0,6,0"
+                    Background="#26364a"
+                    Foreground="White"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    FontSize="12"
+                    Cursor="Hand"
+                    Click="HomeButton_Click"/>
+
+            <Button x:Name="RestartButton"
+                    Content="🔄 Restart"
+                    Padding="12,8"
+                    Margin="0,0,6,0"
+                    Background="#26364a"
+                    Foreground="#f5a623"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    FontSize="12"
+                    Cursor="Hand"
+                    Click="RestartButton_Click"/>
+
+            <Button x:Name="ExitButton"
+                    Content="⏻ Ukončit"
+                    Padding="12,8"
+                    Background="#26364a"
+                    Foreground="#e05c5c"
+                    BorderThickness="0"
+                    FontWeight="Bold"
+                    FontSize="12"
+                    Cursor="Hand"
+                    Click="ExitButton_Click"/>
+
+        </StackPanel>
+    </Border>
+</Window>
