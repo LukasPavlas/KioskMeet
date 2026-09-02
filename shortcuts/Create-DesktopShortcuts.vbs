@@ -3,7 +3,7 @@
 '
 ' Vytvoří na ploše aktuálního uživatele dva zástupce:
 '   1) "Chrome (host)"   - spustí Chrome v režimu Host (--guest)
-'   2) "Spustit kiosk"   - spustí 4Camping Meet Kiosk (KioskMeet.exe)
+'   2) "Spustit kiosk"   - spustí KioskMeet aplikaci (KioskMeet.exe)
 '
 ' PŘED SPUŠTĚNÍM: uprav proměnnou kioskExePath níže, ať ukazuje na
 ' skutečné umístění KioskMeet.exe na tomto počítači.
@@ -61,7 +61,7 @@ Set oLink = oWS.CreateShortcut(strDesktop & "\Spustit kiosk.lnk")
 oLink.TargetPath = kioskExePath
 oLink.WorkingDirectory = oFSO.GetParentFolderName(kioskExePath)
 oLink.IconLocation = kioskExePath & ",0"
-oLink.Description = "Spusti 4Camping Meet Kiosk"
+oLink.Description = "Spusti KioskMeet aplikaci"
 oLink.WindowStyle = 1
 oLink.Save
 
@@ -102,7 +102,7 @@ If answer = vbYes Then
         oLink.TargetPath = kioskExePath
         oLink.WorkingDirectory = oFSO.GetParentFolderName(kioskExePath)
         oLink.IconLocation = kioskExePath & ",0"
-        oLink.Description = "Spusti 4Camping Meet Kiosk"
+        oLink.Description = "Spusti KioskMeet aplikaci"
         oLink.WindowStyle = 1
         oLink.Save
 

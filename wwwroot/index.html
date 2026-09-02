@@ -2,7 +2,7 @@
 <html lang="cs">
 
 <head>
-    <title>4Camping - Meet Kiosk</title>
+    <title>Meeting Kiosk</title>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
 
@@ -478,7 +478,7 @@
     <div class="scene-trees"></div>
 
     <div class="service-nav" id="serviceTabs">
-        <div class="nav-brand">4camping</div>
+        <div class="nav-brand" id="navBrand">Meeting Kiosk</div>
         <button type="button" class="service-tab active" data-service="meet"><span class="dot"></span>Google Meet</button>
         <button type="button" class="service-tab" data-service="teams"><span class="dot"></span>MS Teams</button>
         <button type="button" class="service-tab" data-service="zoom"><span class="dot"></span>Zoom</button>
@@ -533,7 +533,7 @@
             </ol>
             <div class="help-note">
                 Poslední schůzky se ukládají pouze lokálně v tomto zařízení.
-                V případě potíží kontaktujte IT oddělení 4Camping.
+                <span id="helpContactText">V případě potíží kontaktujte IT oddělení.</span>
             </div>
         </div>
     </div>
@@ -887,6 +887,50 @@
                 }
             });
         }
+
+        // ===== Načtení config.json (logo, název, barvy, kontakt...) =====
+
+        function applyConfig(config) {
+            if (config.windowTitle) {
+                document.title = config.windowTitle;
+            }
+
+            var navBrand = document.getElementById("navBrand");
+            if (config.logoPath) {
+                navBrand.innerHTML = "";
+                var img = document.createElement("img");
+                img.src = config.logoPath;
+                img.alt = config.logoAltText || config.appName || "Logo";
+                img.style.maxWidth = "100%";
+                img.style.maxHeight = "28px";
+                img.style.display = "block";
+                navBrand.appendChild(img);
+            } else {
+                navBrand.textContent = config.appName || "Meeting Kiosk";
+            }
+
+            if (config.accentColor) {
+                document.documentElement.style.setProperty("--accent-orange-1", config.accentColor);
+            }
+            if (config.accentColorDark) {
+                document.documentElement.style.setProperty("--accent-orange-2", config.accentColorDark);
+            }
+
+            var helpContact = document.getElementById("helpContactText");
+            if (helpContact && config.helpContactText) {
+                helpContact.textContent = config.helpContactText;
+            }
+        }
+
+        fetch("config.json")
+            .then(function (res) { return res.ok ? res.json() : null; })
+            .then(function (config) {
+                if (config) applyConfig(config);
+            })
+            .catch(function () {
+                // config.json chybí nebo je neplatný - appka pojede
+                // s výchozím vzhledem definovaným přímo v HTML/CSS.
+            });
 
         setService("meet");
         renderRecent();

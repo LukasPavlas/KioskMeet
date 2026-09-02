@@ -6,16 +6,13 @@ using NAudio.CoreAudioApi;
 namespace KioskMeet
 {
     /// <summary>
-    /// Kontroluje, zda je připojené zařízení Jabra (mikrofon i reproduktor),
-    /// a pokud ano, snaží se ho nastavit jako výchozí pro Windows.
+    /// Kontroluje, zda je připojené preferované audio zařízení (mikrofon
+    /// i reproduktor), a pokud ano, snaží se ho nastavit jako výchozí pro
+    /// Windows. Hledaný název zařízení se předává jako parametr - viz
+    /// config.json (AudioDeviceNameContains) a ConfigLoader.cs.
     /// </summary>
     public static class AudioDeviceHelper
     {
-        // Část názvu zařízení, podle které appka Jabru hledá mezi
-        // dostupnými audio zařízeními (funguje pro "Jabra SPEAK 810" i
-        // podobné modelové varianty).
-        public const string TargetDeviceNameContains = "Jabra";
-
         public class DeviceStatus
         {
             public bool Found;
@@ -24,9 +21,14 @@ namespace KioskMeet
             public string? DeviceName;
         }
 
-        public static DeviceStatus CheckAndFixJabraDefault()
+        public static DeviceStatus CheckAndFixDefault(string deviceNameContains)
         {
             var status = new DeviceStatus();
+
+            if (string.IsNullOrWhiteSpace(deviceNameContains))
+            {
+                return status;
+            }
 
             try
             {
@@ -36,9 +38,9 @@ namespace KioskMeet
                 var captureDevices = enumerator.EnumerateAudioEndPoints(DataFlow.Capture, DeviceState.Active).ToList();
 
                 var jabraPlayback = playbackDevices.FirstOrDefault(d =>
-                    d.FriendlyName.Contains(TargetDeviceNameContains, StringComparison.OrdinalIgnoreCase));
+                    d.FriendlyName.Contains(deviceNameContains, StringComparison.OrdinalIgnoreCase));
                 var jabraCapture = captureDevices.FirstOrDefault(d =>
-                    d.FriendlyName.Contains(TargetDeviceNameContains, StringComparison.OrdinalIgnoreCase));
+                    d.FriendlyName.Contains(deviceNameContains, StringComparison.OrdinalIgnoreCase));
 
                 if (jabraPlayback == null && jabraCapture == null)
                 {

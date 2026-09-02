@@ -1,0 +1,76 @@
+name: Build and Release (Windows)
+
+# Spustí se automaticky při vytvoření a nahrání tagu ve formátu vX.Y.Z
+# (např. v1.0.0). Postup vydání nové verze:
+#   git tag v1.0.0
+#   git push origin v1.0.0
+
+on:
+  push:
+    tags:
+      - "v*.*.*"
+
+  # Umožňuje i ruční spuštění z GitHub UI (záložka Actions) pro test
+  # buildu bez nutnosti vytvářet tag.
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  build-windows:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout repozitáře
+        uses: actions/checkout@v4
+
+      - name: Nastavit .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
+
+      - name: Obnovit NuGet balíčky
+        run: dotnet restore
+
+      - name: Publikovat self-contained build (win-x64)
+        run: >
+          dotnet publish -c Release -r win-x64 --self-contained true
+          -p:PublishSingleFile=true
+          -p:IncludeNativeLibrariesForSelfExtract=true
+          -o publish
+
+      - name: Přibalit pomocné skripty (zástupci na plochu)
+        shell: pwsh
+        run: Copy-Item -Recurse -Force shortcuts publish/shortcuts
+
+      - name: Zjistit název verze
+        id: version
+        shell: pwsh
+        run: |
+          $ref = "${{ github.ref_name }}"
+          if ($ref -eq "") { $ref = "dev-build" }
+          echo "version=$ref" >> $env:GITHUB_OUTPUT
+
+      - name: Zabalit do ZIP
+        shell: pwsh
+        run: |
+          $zipName = "KioskMeet-${{ steps.version.outputs.version }}-win-x64.zip"
+          Compress-Archive -Path publish/* -DestinationPath $zipName
+          echo "zip_name=$zipName" >> $env:GITHUB_ENV
+
+      - name: Nahrát artefakt (i pro ruční spuštění bez tagu)
+        uses: actions/upload-artifact@v4
+        with:
+          name: KioskMeet-${{ steps.version.outputs.version }}-win-x64
+          path: ${{ env.zip_name }}
+
+      - name: Vytvořit GitHub Release (jen při push tagu)
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: ${{ env.zip_name }}
+          generate_release_notes: true
+          name: "KioskMeet ${{ steps.version.outputs.version }}"
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

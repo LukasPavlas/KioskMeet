@@ -21,6 +21,8 @@ namespace KioskMeet
         /// </summary>
         public ControlBarWindow? ControlBar { get; set; }
 
+        private readonly AppConfig _config;
+
         private static readonly SolidColorBrush StatusOkBrush = new(Color.FromRgb(0x6f, 0xbf, 0x5e));
         private static readonly SolidColorBrush StatusWarnBrush = new(Color.FromRgb(0xf5, 0xa6, 0x23));
         private static readonly SolidColorBrush StatusErrorBrush = new(Color.FromRgb(0xe0, 0x5c, 0x5c));
@@ -28,6 +30,10 @@ namespace KioskMeet
         public MainWindow()
         {
             InitializeComponent();
+
+            _config = ConfigLoader.Load();
+            Title = _config.WindowTitle;
+
             Loaded += MainWindow_Loaded;
             PreviewKeyDown += MainWindow_PreviewKeyDown;
         }
@@ -79,23 +85,24 @@ namespace KioskMeet
                 CameraStatusText.Text = "Kamera: nenalezena";
             }
 
-            // ===== Jabra 810 =====
-            var audio = AudioDeviceHelper.CheckAndFixJabraDefault();
+            // ===== Zvukové zařízení (dle config.json) =====
+            var audio = AudioDeviceHelper.CheckAndFixDefault(_config.AudioDeviceNameContains);
+            string audioLabel = _config.AudioDeviceLabel;
 
             if (!audio.Found)
             {
                 JabraDot.Fill = StatusErrorBrush;
-                JabraStatusText.Text = "Jabra 810: nenalezena";
+                JabraStatusText.Text = $"{audioLabel}: nenalezena";
             }
             else if (audio.IsDefaultPlayback && audio.IsDefaultRecording)
             {
                 JabraDot.Fill = StatusOkBrush;
-                JabraStatusText.Text = "Jabra 810: OK (výchozí)";
+                JabraStatusText.Text = $"{audioLabel}: OK (výchozí)";
             }
             else
             {
                 JabraDot.Fill = StatusWarnBrush;
-                JabraStatusText.Text = "Jabra 810: připojena, není výchozí";
+                JabraStatusText.Text = $"{audioLabel}: připojena, není výchozí";
             }
         }
 

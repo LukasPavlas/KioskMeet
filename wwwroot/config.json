@@ -1,0 +1,16 @@
+{
+  "appName": "Meeting Kiosk",
+  "windowTitle": "Meeting Kiosk",
+  "tagline": "Připojení na online schůzku",
+
+  "logoPath": "",
+  "logoAltText": "MK",
+
+  "accentColor": "#f5a623",
+  "accentColorDark": "#f07d1a",
+
+  "helpContactText": "V případě potíží kontaktujte IT oddělení.",
+
+  "audioDeviceNameContains": "Jabra",
+  "audioDeviceLabel": "Jabra 810"
+}
