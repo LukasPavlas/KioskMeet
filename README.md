@@ -28,6 +28,8 @@ obrazovku – bez potřeby cokoliv ručně zavírat.
 - [Licence](#licence)
 
 ---
+![Náhled aplikace](img/preview.webp)
+---
 
 ## Co appka umí
 
